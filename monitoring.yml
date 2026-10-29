@@ -1,0 +1,17 @@
+---
+# Task 3.2: Install and configure Monitoring Stack (Prometheus Containerized)
+- name: Create Docker monitoring network
+  community.docker.docker_network:
+    name: monitoring_net
+    state: present
+
+- name: Deploy Prometheus Container
+  community.docker.docker_container:
+    name: prometheus
+    image: prom/prometheus:latest
+    state: started
+    restart_policy: always
+    networks:
+      - name: monitoring_net
+    published_ports:
+      - "{{ prometheus_port | default(9090) }}:9090"

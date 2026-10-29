@@ -1,0 +1,10 @@
+---
+# Task 3.1: Install and configure Nginx Enterprise Service (Containerized)
+- name: Deploy Enterprise Nginx Web Server
+  community.docker.docker_container:
+    name: enterprise_nginx
+    image: nginx:latest
+    state: started
+    restart_policy: always
+    published_ports:
+      - "{{ nginx_http_port | default(8080) }}:80"
