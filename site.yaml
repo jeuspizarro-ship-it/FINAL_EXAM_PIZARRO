@@ -1,0 +1,94 @@
+---
+- name: Prepare Nodes, Update MOTD, and Install Docker
+  hosts: all
+  become: true
+  vars_files:
+    - config.yml
+  tasks:
+    - name: Change Message of the Day (MOTD)
+      ansible.builtin.copy:
+        content: "{{ motd_text }}\n"
+        dest: /etc/motd
+        owner: root
+        group: root
+        mode: '0644'
+
+    - name: Install Docker prerequisites on Debian hosts
+      ansible.builtin.apt:
+        name:
+          - ca-certificates
+          - curl
+          - gnupg
+          - python3-pip
+        state: present
+        update_cache: true
+      when: ansible_os_family == "Debian"
+
+    - name: Install Docker prerequisites on CentOS hosts
+      ansible.builtin.dnf:
+        name:
+          - yum-utils
+          - python3-pip
+          - device-mapper-persistent-data
+          - lvm2
+        state: present
+      when: ansible_os_family == "RedHat"
+
+    - name: Add Docker YUM repository on CentOS hosts
+      ansible.builtin.get_url:
+        url: https://download.docker.com/linux/centos/docker-ce.repo
+        dest: /etc/yum.repos.d/docker-ce.repo
+        mode: '0644'
+      when: ansible_os_family == "RedHat"
+
+    - name: Install Docker package (Debian)
+      ansible.builtin.apt:
+        name: docker.io
+        state: present
+      when: ansible_os_family == "Debian"
+
+    - name: Install Docker package (CentOS)
+      ansible.builtin.dnf:
+        name:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+        state: present
+      when: ansible_os_family == "RedHat"
+
+    - name: Ensure Python Docker SDK is installed
+      ansible.builtin.pip:
+        name: docker
+        state: present
+
+    - name: Ensure Docker daemon is running and enabled
+      ansible.builtin.systemd:
+        name: docker
+        state: started
+        enabled: true
+      ignore_errors: true
+  
+
+- name: Deploy Monitoring Stack Containers
+  hosts: workstations
+  become: true
+  vars_files:
+    - config.yml
+  tasks:
+    - name: Create isolated Docker network for monitoring
+      community.docker.docker_network:
+        name: monitoring_net
+        state: present
+
+    - name: Deploy Prometheus Monitoring Container
+      community.docker.docker_container:
+        name: prometheus
+        image: prom/prometheus:latest
+        state: started
+        restart_policy: always
+        networks:
+          - name: monitoring_net
+        published_ports:
+          - "{{ prometheus_port | default(9090) }}:9090"
+
+ 

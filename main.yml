@@ -1,0 +1,18 @@
+---
+- name: Setup Enterprise Web Service
+  hosts: web_servers
+  become: true
+  vars_files:
+    - config.yaml
+  tasks:
+    - name: Import Enterprise Service Tasks
+      ansible.builtin.import_tasks: enterprise_service.yml
+
+- name: Setup Monitoring Stack
+  hosts: workstations
+  become: true
+  vars_files:
+    - config.yaml
+  tasks:
+    - name: Import Monitoring Stack Tasks
+      ansible.builtin.import_tasks: monitoring_stack.yml

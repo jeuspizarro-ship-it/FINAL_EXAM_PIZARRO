@@ -1,0 +1,26 @@
+all:
+  children:
+    web_servers:
+      hosts:
+        pizza2:
+          ansible_host: 192.168.56.110
+          ansible_user: pizza2
+        pizza3:
+          ansible_host: 192.168.56.112
+          ansible_user: pizza3
+        pizza_centos:
+          ansible_host: 192.168.56.113
+          ansible_user: jeus
+
+    db_servers:
+      hosts:
+        pizza_centos:
+          ansible_host: 192.168.56.113
+          ansible_user: jeus
+
+    workstations:
+     hosts:
+       workstation1:
+          pizza2:
+          ansible_host: 192.168.56.110
+          ansible_user: pizza2

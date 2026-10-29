@@ -1,0 +1,11 @@
+---
+# Global MOTD config
+surname: "PIZARRO"
+motd_text: "Ansible Managed by PIZARRO"
+
+# Enterprise Service (Nginx) configuration
+nginx_http_port: 8080
+
+# Monitoring Stack (Prometheus & Grafana) configuration
+prometheus_port: 9090
+grafana_port: 3000
